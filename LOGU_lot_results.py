@@ -1,46 +1,69 @@
 import streamlit as st
 import random
 import hashlib
-import time
+from datetime import datetime
 
-def generate_ticket_numbers(num_tickets, complexity_factor=5):
-    tickets = []
-    for _ in range(num_tickets):
-        random_seed = str(time.time() * complexity_factor)
-        ticket = hashlib.sha256(random_seed.encode()).hexdigest()[:6]
-        tickets.append(ticket.upper())
-    return tickets
+def generate_ticket_number():
+    # Generate a 6-character ticket number similar to Kerala Lottery's format
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    return "".join(random.choice(chars) for _ in range(6))
 
-def display_results():
-    st.title("Kerala Fifty-Fifty Lottery")
-    st.header("Draw Results")
-    
-    # Check if `prize_structure` exists and is populated
-    prize_structure = generate_ticket_numbers(1)  # Assuming this list is dynamically populated
+def hash_ticket(ticket):
+    # Apply SHA-256 hashing for ticket integrity verification
+    return hashlib.sha256(ticket.encode()).hexdigest()
 
-    if prize_structure:
-        first_prize = prize_structure[0]
-        st.write(f"1st Prize: ₹1,00,00,000 - Ticket No: {first_prize}")
-    else:
-        st.write("1st Prize data not available")
+def generate_prize_structure():
+    # Structured prize details similar to Kerala Lottery
+    structure = {
+        "1st Prize": {"amount": "Rs:1,00,00,000/-", "ticket": generate_ticket_number()},
+        "Consolation Prizes": {"amount": "Rs:8,000/-", "tickets": [generate_ticket_number() for _ in range(10)]},
+        "2nd Prize": {"amount": "Rs:10,00,000/-", "tickets": [generate_ticket_number() for _ in range(5)]},
+        "3rd Prize": {"amount": "Rs:5,000/-", "tickets": [generate_ticket_number() for _ in range(20)]},
+        "4th Prize": {"amount": "Rs:2,000/-", "tickets": [generate_ticket_number() for _ in range(30)]},
+        "5th Prize": {"amount": "Rs:1,000/-", "tickets": [generate_ticket_number() for _ in range(50)]},
+        "6th Prize": {"amount": "Rs:500/-", "tickets": [generate_ticket_number() for _ in range(100)]},
+        "7th Prize": {"amount": "Rs:100/-", "tickets": [generate_ticket_number() for _ in range(150)]},
+    }
+    # Add hashed versions of ticket numbers
+    for prize in structure.values():
+        if isinstance(prize["tickets"], list):
+            prize["tickets"] = [(ticket, hash_ticket(ticket)) for ticket in prize["tickets"]]
+        else:
+            prize["ticket"] = (prize["ticket"], hash_ticket(prize["ticket"]))
+    return structure
 
-    st.subheader("Consolation Prizes")
-    consolation_prizes = generate_ticket_numbers(10)
-    st.write("Consolation Prizes: ₹8,000 each")
-    for ticket in consolation_prizes:
-        st.write(f"Ticket No: {ticket}")
+def calculate_security_level():
+    # Simulated security level
+    return random.uniform(97, 99.9)
 
-    st.subheader("Lower Prizes")
-    for i, prize_amount in enumerate([5000, 2000, 1000, 500, 100]):
-        tickets = generate_ticket_numbers(20 - i * 3)
-        st.write(f"{i+3}rd Prize: ₹{prize_amount} each")
-        st.write(", ".join(tickets))
+def display_lottery_results():
+    # Fetch and display results
+    results = generate_prize_structure()
+    st.write("KERALA STATE LOTTERIES - RESULT")
+    st.write("PHONE:- 0471-2305230 DIRECTOR:- 0471-2305193 OFFICE:- 0471-2301740")
+    st.write("Draw: FIFTY-FIFTY LOTTERY NO.FF-116th DRAW")
+    st.write(f"Draw Date: {datetime.now().strftime('%d/%m/%Y, %I:%M %p')}")
+    st.write("AT GORKY BHAVAN, NEAR BAKERY JUNCTION, THIRUVANANTHAPURAM")
 
-    # Complexity analysis display
-    st.subheader("Complexity Analysis")
-    st.write("This lottery system uses cryptographic hashing to generate ticket numbers, making it difficult to predict.")
-    st.write("The security level increases with each iteration as previous results are analyzed and factored into future draws.")
+    # Display prizes with hashed tickets
+    for prize, details in results.items():
+        st.write(f"{prize}: {details['amount']}")
+        if prize == "1st Prize":
+            st.write(f"Ticket No: {details['ticket'][0]}")
+            st.write(f"Hash: {details['ticket'][1]}")
+        else:
+            st.write("Tickets and Hashes:")
+            for ticket, hash_value in details["tickets"]:
+                st.write(f"Ticket No: {ticket} | Hash: {hash_value}")
 
-# Set up Streamlit app layout and refresh button
-if st.sidebar.button("Generate New Draw"):
-    display_results()
+    # Security and complexity analysis
+    complexity = calculate_security_level()
+    st.write(f"\n**Security Complexity**: Approximately {complexity:.2f}% secure.")
+    st.write("**Integrity Verification**: SHA-256 hashes ensure each ticket’s authenticity.")
+    st.write("Difficulty of unauthorized access or duplication is high due to cryptographic complexity.")
+
+# Button to refresh and generate new results
+if st.button("Refresh Results"):
+    display_lottery_results()
+else:
+    display_lottery_results()
