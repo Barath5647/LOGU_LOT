@@ -5,7 +5,7 @@ def generate_numbers(count, digits=4):
     """Generate a list of unique random lottery numbers with a specified digit length."""
     numbers = set()
     while len(numbers) < count:
-        number = str(random.randint(10**(digits-1), 10**digits - 1)).zfill(digits)
+        number = str(random.randint(1000, 9999))  # Ensures numbers are between 1000 and 9999
         numbers.add(number)
     return sorted(numbers)
 
@@ -16,23 +16,24 @@ st.text("DRAW held on: 10/11/2024, 3:00 PM\nAT MAIN OFFICE, CITY CENTER, THIRUVA
 
 # Displaying 1st Prize
 st.header("1st Prize Rs: 10,000,000/-")
-st.write(f"1) {generate_numbers(1)[0]} (THIRUVANANTHAPURAM)")
+st.write(f"1) 0{generate_numbers(1)[0]} (THIRUVANANTHAPURAM)")
 
 # Consolation Prize
 st.header("Consolation Prize Rs: 8,000/-")
 consolation_numbers = generate_numbers(10)
-st.write(" ".join(consolation_numbers))
+st.write(" ".join([f"0{num}" for num in consolation_numbers]))
 
 # Displaying 2nd Prize
 st.header("2nd Prize Rs: 1,000,000/-")
-st.write(f"1) {generate_numbers(1)[0]} (KOCHI)")
+st.write(f"1) 0{generate_numbers(1)[0]} (KOCHI)")
 
 # Displaying multiple prizes with 100 numbers each
-for prize, amount in zip(["3rd", "4th", "5th", "6th", "7th"], ["5000", "2000", "1000", "500", "100"]):
+prizes = [("3rd", "5000"), ("4th", "2000"), ("5th", "1000"), ("6th", "500"), ("7th", "100")]
+for prize, amount in prizes:
     st.header(f"{prize} Prize Rs: {amount}/-")
     prize_numbers = generate_numbers(100)
     for i in range(0, len(prize_numbers), 10):
-        st.write(" ".join(prize_numbers[i:i+10]))
+        st.write(" ".join([f"0{num}" for num in prize_numbers[i:i+10]]))
 
 # Footer with instructions
 st.text("""
