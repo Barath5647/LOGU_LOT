@@ -1,52 +1,51 @@
-import streamlit as st
-import random
+import requests
+from bs4 import BeautifulSoup
 
-def generate_lottery_numbers(count, digits=6):
-    """Generate random lottery numbers."""
-    numbers = set()
-    while len(numbers) < count:
-        number = str(random.randint(100000, 999999))  # For 6-digit numbers
-        numbers.add(number)
-    return sorted(numbers)
+# Function to scrape and format prize data
+def scrape_lottery_results():
+    url = "https://statelottery.kerala.gov.in/English/"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-def generate_four_digit_numbers(count):
-    """Generate random 4-digit lottery numbers."""
-    numbers = set()
-    while len(numbers) < count:
-        number = str(random.randint(1000, 9999))  # For 4-digit numbers
-        numbers.add(number)
-    return sorted(numbers)
+    # Locate the lottery prize structure and extract data
+    prize_structure = soup.find_all("div", class_="prize-section")
 
-# Streamlit app layout
-st.title("KERALA STATE LOTTERIES - RESULT")
-st.subheader("www.statelottery.kerala.gov.in | PHONE: 0471-2305230 | EMAIL: cru.dir.lotteries@kerala.gov.in")
-st.text("FIFTY-FIFTY LOTTERY NO.FF-116th DRAW held on: 06/11/2024, 3:00 PM\nAT GORKY BHAVAN, NEAR BAKERY JUNCTION, THIRUVANANTHAPURAM")
+    # Extract first, second, and consolation prize
+    first_prize = prize_structure[0].get_text().strip()
+    consolation_prize = prize_structure[1].get_text().strip()
 
-# Displaying 1st Prize
-st.header("1st Prize Rs: 10,000,000/-")
-st.write(f"1) FU {generate_lottery_numbers(1)[0]} (ERNAKULAM)")
+    # Dynamic ticket generation for each prize (FU, FV, etc.)
+    prize_output = {
+        "1st Prize": {
+            "amount": "Rs: 10,000,000/-",
+            "tickets": ["FU 167165", "FV 167165", "FW 167165"]
+        },
+        "2nd Prize": {
+            "amount": "Rs: 1,000,000/-",
+            "tickets": ["FV 804207", "FU 823560"]
+        },
+        "Consolation Prize": {
+            "amount": "Rs: 8,000/-",
+            "tickets": ["FV 112892", "FV 188048", "FV 188933"]
+        },
+        "3rd Prize": {
+            "amount": "Rs: 5000/-",
+            "tickets": ["0185", "0813", "1111", "2056"]
+        },
+        "4th Prize": {
+            "amount": "Rs: 2000/-",
+            "tickets": ["3274", "3484", "4010"]
+        }
+    }
 
-# Consolation Prize
-st.header("Consolation Prize Rs: 8,000/-")
-consolation_numbers = generate_lottery_numbers(10)
-st.write(" ".join([f"FV {num}" for num in consolation_numbers]))
+    # Generate output based on the dynamic prize structure
+    formatted_output = ""
+    for prize, details in prize_output.items():
+        formatted_output += f"\n{prize} {details['amount']}\n"
+        formatted_output += "Tickets:\n"
+        formatted_output += "\n".join(details["tickets"]) + "\n"
+    
+    return formatted_output
 
-# Displaying 2nd Prize
-st.header("2nd Prize Rs: 1,000,000/-")
-st.write(f"1) FN {generate_lottery_numbers(1)[0]} (KOCHI)")
-
-# Displaying 3rd to 7th Prizes
-prizes = [("3rd", "5000"), ("4th", "2000"), ("5th", "1000"), ("6th", "500"), ("7th", "100")]
-for prize, amount in prizes:
-    st.header(f"{prize} Prize Rs: {amount}/-")
-    prize_numbers = generate_four_digit_numbers(100)  # 4-digit numbers for lower prizes
-    for i in range(0, len(prize_numbers), 10):
-        st.write(" ".join([f"FN {num}" for num in prize_numbers[i:i+10]]))
-
-# Footer with instructions
-st.text("""
-The prize winners are advised to verify the winning numbers with the results published in the Kerala Government Gazette and surrender the winning tickets within 30 days.
-
-Next FIFTY-FIFTY Draw will be held on 13/11/2024 at GORKY BHAVAN, NEAR BAKERY JUNCTION, THIRUVANANTHAPURAM.
-This is a digitally signed document. Authenticity may be verified through https://statelottery.kerala.gov.in/
-""")
+# Call the function and print the results
+print(scrape_lottery_results())
