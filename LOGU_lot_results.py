@@ -64,7 +64,7 @@ def display_kerala_lottery(results):
     for prize, numbers in results.items():
         if isinstance(numbers, list):
             st.markdown(f"**{prize}**")
-            # st.markdown(" | ".join(numbers))
+            st.markdown("  ".join(numbers))
         else:
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
