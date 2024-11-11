@@ -298,10 +298,13 @@ def generate_and_save_latest_results():
 
 def calculate_crack_time(attempts_per_sec, prize_counts, total_ticket_possibilities):
     total_attempts_needed = total_ticket_possibilities / prize_counts
-    return round(total_attempts_needed / attempts_per_sec, 2)
-
+    time_to_crack = total_attempts_needed / attempts_per_sec
+    if time_to_crack < 1:
+        return "Less than 1 second"
+    return round(time_to_crack, 2)
+    
 def display_complexity_analysis(current_results, past_results=None):
-    total_ticket_possibilities = 10000  # Four-digit numbers (0000 to 9999)
+    total_ticket_possibilities = 10000
     prize_counts = sum(len(v) if isinstance(v, list) else 1 for v in current_results.values())
     probability_to_win = round((prize_counts / total_ticket_possibilities) * 100, 2)
     
@@ -309,17 +312,17 @@ def display_complexity_analysis(current_results, past_results=None):
     st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
     st.markdown("**Difficulty Level:** Hard")
 
-    human_attempts_per_second = 1  # Manual
+    human_attempts_per_second = 1
     amateur_attempts_per_second = 1000
     expert_attempts_per_second = 100000
     supercomputer_attempts_per_second = 1e9
 
     st.markdown("**Estimated Time to Crack Each Prize Tier by Different Attackers:**")
-    st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
-    st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
-    st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
-    st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
-
+    st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second, prize_counts, total_ticket_possibilities)}")
+    st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second, prize_counts, total_ticket_possibilities)}")
+    st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second, prize_counts, total_ticket_possibilities)}")
+    st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second, prize_counts, total_ticket_possibilities)}")
+    
         # In the display function:
     plot_prize_distribution(current_results)
 
