@@ -252,9 +252,40 @@ def generate_and_save_latest_results():
 
     return results
 
-def display_complexity_analysis(current_results, past_results=None):
-    """Real-time complexity analysis for the current lottery results."""
+# def display_complexity_analysis(current_results, past_results=None):
+#     """Real-time complexity analysis for the current lottery results."""
     
+#     total_ticket_possibilities = 10000  # Four-digit numbers (0000 to 9999)
+#     prize_counts = sum(len(v) if isinstance(v, list) else 1 for v in current_results.values())
+#     probability_to_win = round((prize_counts / total_ticket_possibilities) * 100, 2)
+    
+#     st.markdown("### Probability Analysis")
+#     st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
+#     st.markdown("**Difficulty Level:** Hard")
+
+#     st.markdown("### Complexity Analysis")
+#     st.markdown("This system uses cryptographic SHA-256 hashing to enhance unpredictability of each prize-winning ticket.")
+    
+#     human_attempts_per_second = 1  # Manual
+#     amateur_attempts_per_second = 1000
+#     expert_attempts_per_second = 100000
+#     supercomputer_attempts_per_second = 1e9
+
+#     def calculate_crack_time(attempts_per_sec):
+#         total_attempts_needed = total_ticket_possibilities / prize_counts
+#         return round(total_attempts_needed / attempts_per_sec, 2)
+
+#     st.markdown("**Estimated Time to Crack Each Prize Tier by Different Attackers:**")
+#     st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second)} seconds")
+#     st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second)} seconds")
+#     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
+#     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
+
+def calculate_crack_time(attempts_per_sec, prize_counts, total_ticket_possibilities):
+    total_attempts_needed = total_ticket_possibilities / prize_counts
+    return round(total_attempts_needed / attempts_per_sec, 2)
+
+def display_complexity_analysis(current_results, past_results=None):
     total_ticket_possibilities = 10000  # Four-digit numbers (0000 to 9999)
     prize_counts = sum(len(v) if isinstance(v, list) else 1 for v in current_results.values())
     probability_to_win = round((prize_counts / total_ticket_possibilities) * 100, 2)
@@ -263,23 +294,16 @@ def display_complexity_analysis(current_results, past_results=None):
     st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
     st.markdown("**Difficulty Level:** Hard")
 
-    st.markdown("### Complexity Analysis")
-    st.markdown("This system uses cryptographic SHA-256 hashing to enhance unpredictability of each prize-winning ticket.")
-    
     human_attempts_per_second = 1  # Manual
     amateur_attempts_per_second = 1000
     expert_attempts_per_second = 100000
     supercomputer_attempts_per_second = 1e9
 
-    def calculate_crack_time(attempts_per_sec):
-        total_attempts_needed = total_ticket_possibilities / prize_counts
-        return round(total_attempts_needed / attempts_per_sec, 2)
-
     st.markdown("**Estimated Time to Crack Each Prize Tier by Different Attackers:**")
-    st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second)} seconds")
-    st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second)} seconds")
-    st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
-    st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
+    st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
+    st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
+    st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
+    st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
 
     if past_results:
         st.markdown("### Comparative Analysis with Past Results")
