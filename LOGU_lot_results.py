@@ -296,6 +296,22 @@ def generate_and_save_latest_results():
 #     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
 #     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
 
+# Function to calculate probability
+def calculate_probability(prize_counts, total_ticket_possibilities):
+    total_prizes = sum(prize_counts.values())
+    return (total_prizes / total_ticket_possibilities) * 100
+
+# Example prize counts and total ticket possibilities
+prize_counts = {"First Prize": 1, "Second Prize": 5, "Third Prize": 10}  # Example
+total_ticket_possibilities = 100000  # Example
+
+# Calculate the probability
+probability_to_win = calculate_probability(prize_counts, total_ticket_possibilities)
+
+# Display the probability
+st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
+
+
 # Add or replace inside `display_complexity_analysis`
 def calculate_crack_time(attempts_per_sec, prize_counts, total_ticket_possibilities):
     total_attempts_needed = total_ticket_possibilities / prize_counts
