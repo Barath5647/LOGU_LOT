@@ -338,7 +338,7 @@ else:
 # Display the latest results by default
 st.write("### Latest Result")
 display_kerala_lottery(latest_results)
-display_complexity_analysis(latest_results, load_results_from_file(previous_date)
+display_complexity_analysis(latest_results, load_results_from_file(previous_date))
 
 # Past results search option
 st.sidebar.write("### View Past Results")
