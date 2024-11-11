@@ -202,6 +202,20 @@ def load_results_from_file(date=None):
         all_results = json.load(file)
     return all_results if date is None else all_results.get(date, {})
 
+def plot_prize_distribution(results):
+    prize_names = list(results.keys())
+    prize_counts = [len(prizes) if isinstance(prizes, list) else 1 for prizes in results.values()]
+
+    fig, ax = plt.subplots()
+    ax.bar(prize_names, prize_counts, color='skyblue')
+    ax.set_xlabel('Prize Tiers')
+    ax.set_ylabel('Number of Prizes')
+    ax.set_title('Prize Distribution in the Latest Draw')
+    st.pyplot(fig)
+
+
+
+
 def display_kerala_lottery(results):
     """Displays the Kerala Fifty-Fifty Lottery Result in a specified format with spaced tables."""
     st.markdown("**KERALA STATE LOTTERIES - RESULT**")
@@ -222,6 +236,9 @@ def display_kerala_lottery(results):
         else:
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
+
+    # In the display function:
+    plot_prize_distribution(current_results)
 
 def generate_and_save_latest_results():
     """Generates a new batch of lottery results and saves them to the file."""
