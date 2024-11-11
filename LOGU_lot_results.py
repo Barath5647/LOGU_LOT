@@ -64,7 +64,7 @@ def display_kerala_lottery(results):
     for prize, numbers in results.items():
         if isinstance(numbers, list):
             st.markdown(f"**{prize}**")
-            st.markdown("  ".join(numbers))
+            st.markdown(" | ".join(numbers))
         else:
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
@@ -82,11 +82,11 @@ def generate_and_save_latest_results():
     # Lower Prizes with four-digit format
     prize_structure = {
         "2nd Prize: ₹1,00,000 each": 12,
-        "3rd Prize: ₹5000 each": 25,
+        "3rd Prize: ₹5000 each": 20,
         "4th Prize: ₹2000 each": 18,
-        "5th Prize: ₹1000 each": 25,
-        "6th Prize: ₹500 each": 30,
-        "7th Prize: ₹100 each": 100
+        "5th Prize: ₹1000 each": 15,
+        "6th Prize: ₹500 each": 12,
+        "7th Prize: ₹100 each": 10
     }
 
     for prize_name, count in prize_structure.items():
@@ -124,23 +124,13 @@ display_kerala_lottery(latest_results)
 st.sidebar.write("### View Past Results")
 selected_date = st.sidebar.text_input("Enter the date (dd-mm-yyyy HH:MM) to view past results:")
 
-# Dropdown menu for past results selection
-all_results = load_results_from_file()
-if all_results:
-    date_options = sorted(all_results.keys(), reverse=True)
-    selected_date_dropdown = st.sidebar.selectbox("Or select from available dates:", date_options)
-
-    # If user selects a date from the dropdown or enters a date manually
-    if selected_date or selected_date_dropdown:
-        date_to_show = selected_date if selected_date else selected_date_dropdown
-        past_results = load_results_from_file(date_to_show)
-        if past_results:
-            st.write(f"### Results for {date_to_show}")
-            display_kerala_lottery(past_results)
-        else:
-            st.write("No results found for the specified date.")
-else:
-    st.sidebar.write("No past results available.")
+if selected_date:
+    past_results = load_results_from_file(selected_date)
+    if past_results:
+        st.write(f"### Results for {selected_date}")
+        display_kerala_lottery(past_results)
+    else:
+        st.write("No results found for the specified date.")
 
 # Running scheduled tasks continuously in the background
 while True:
