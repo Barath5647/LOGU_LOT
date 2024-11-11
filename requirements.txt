@@ -1,4 +1,4 @@
 numpy
-matplotlib.pyplot
+matplotlib
 beautifulsoup4
 schedule
