@@ -151,6 +151,8 @@
 #     schedule.run_pending()
 #     time.sleep(1)
 
+
+
 import streamlit as st
 import random
 import hashlib
@@ -159,6 +161,8 @@ from datetime import datetime, timedelta
 import os
 import schedule
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
 def generate_ticket_number():
     """Generates a unique, randomized, four-digit ticket number."""
@@ -201,8 +205,6 @@ def load_results_from_file(date=None):
 
 def display_kerala_lottery(results):
     """Displays the Kerala Fifty-Fifty Lottery Result in a specified format with spaced tables."""
-
-    # Header Information
     st.markdown("**KERALA STATE LOTTERIES - RESULT**")
     st.markdown(f"**FIFTY-FIFTY LOTTERY NO.FF-116th DRAW held on:** {datetime.now().strftime('%d/%m/%Y, %I:%M %p')}")
     st.markdown("""
@@ -254,7 +256,6 @@ def generate_and_save_latest_results():
 def display_complexity_analysis(current_results, past_results=None):
     """Real-time complexity analysis for the current lottery results."""
     
-    # Probability Analysis
     total_ticket_possibilities = 10000  # Four-digit numbers (0000 to 9999)
     prize_counts = sum(len(v) if isinstance(v, list) else 1 for v in current_results.values())
     probability_to_win = round((prize_counts / total_ticket_possibilities) * 100, 2)
@@ -263,12 +264,9 @@ def display_complexity_analysis(current_results, past_results=None):
     st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
     st.markdown("**Difficulty Level:** Hard")
 
-    # Complexity Analysis based on SHA-256 hashing and unique prize generation
     st.markdown("### Complexity Analysis")
     st.markdown("This system uses cryptographic SHA-256 hashing to enhance unpredictability of each prize-winning ticket.")
     
-    # Approximate time to crack each prize tier
-    # Assume attempts per second for hypothetical attackers
     human_attempts_per_second = 1  # Manual
     amateur_attempts_per_second = 1000
     expert_attempts_per_second = 100000
@@ -284,27 +282,23 @@ def display_complexity_analysis(current_results, past_results=None):
     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
 
-    # In-depth comparison with past results for unpredictability and variance
     if past_results:
         st.markdown("### Comparative Analysis with Past Results")
         current_prizes_flat = [num for prize, nums in current_results.items() for num in (nums if isinstance(nums, list) else [nums])]
         past_prizes_flat = [num for prize, nums in past_results.items() for num in (nums if isinstance(nums, list) else [nums])]
         
-        # Calculate unique ticket distribution
         common_tickets = set(current_prizes_flat).intersection(set(past_prizes_flat))
         unique_current_tickets = len(current_prizes_flat) - len(common_tickets)
         
         st.write(f"**Unique ticket distribution in this draw:** {unique_current_tickets}")
         st.write(f"**Common tickets with past draw:** {len(common_tickets)}")
         
-        # Variance in hash values
         current_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in current_prizes_flat])
         past_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in past_prizes_flat])
         variance_diff = round(abs(current_hash_variance - past_hash_variance), 2)
         
         st.write(f"**Hash variance difference from past results:** {variance_diff}")
 
-        # Graphical Representation of Variance
         fig, ax = plt.subplots()
         ax.bar(["Current Draw", "Past Draw"], [current_hash_variance, past_hash_variance], color=['blue', 'orange'])
         ax.set_ylabel("Hash Variance")
@@ -312,10 +306,7 @@ def display_complexity_analysis(current_results, past_results=None):
         st.pyplot(fig)
 
         st.markdown("### Conclusion")
-        st.markdown("This analysis indicates that the SHA-256 hashing used for each prize level significantly reduces pattern predictability, with minimal overlap between current and previous results. The complexity to crack even with high-end resources remains high, underscoring the security of this lottery generation model.")
-
-# Replace the original display_complexity_analysis call with:
-# display_complexity_analysis(latest_results, load_results_from_file(previous_date))
+        st.markdown("This analysis indicates that the SHA-256 hashing used for each prize level significantly reduces pattern predictability, with minimal overlap between current and previous results.")
 
 # Schedule weekly result generation every Wednesday at 3:00 pm
 def scheduled_task():
@@ -323,46 +314,29 @@ def scheduled_task():
 
 schedule.every().wednesday.at("15:00").do(scheduled_task)
 
-# Streamlit app execution with sidebar options
 st.title("Kerala Fifty-Fifty Lottery Result Generator")
 
-# Sidebar options for refreshing and viewing past results
 st.sidebar.write("### Options")
 if st.sidebar.button("Refresh Results"):
     latest_results = generate_and_save_latest_results()
 else:
-    # Load the latest available results if not refreshed
     all_results = load_results_from_file()
     latest_results = all_results[max(all_results.keys())] if all_results else generate_and_save_latest_results()
 
-# Display the latest results by default
 st.write("### Latest Result")
 display_kerala_lottery(latest_results)
-display_complexity_analysis(latest_results, load_results_from_file(previous_date))
 
-# Past results search option
-st.sidebar.write("### View Past Results")
 available_dates = list(load_results_from_file().keys())
 selected_date_from_menu = st.sidebar.selectbox("Select date to view past results", [""] + available_dates)
-
-# Search bar for manually entering a date
 selected_date_input = st.sidebar.text_input("Or enter the date (dd-mm-yyyy HH:MM):")
 
-# Display selected past results based on dropdown or input field
-if selected_date_input:
-    past_results = load_results_from_file(selected_date_input)
-elif selected_date_from_menu:
-    past_results = load_results_from_file(selected_date_from_menu)
-else:
-    past_results = None
-
+past_results = load_results_from_file(selected_date_input or selected_date_from_menu) if selected_date_input or selected_date_from_menu else None
 if past_results:
     st.write(f"### Results for {selected_date_input or selected_date_from_menu}")
     display_kerala_lottery(past_results)
-else:
-    st.write("No results found for the specified date.")
 
-# Running scheduled tasks continuously in the background
+display_complexity_analysis(latest_results, past_results)
+
 while True:
     schedule.run_pending()
     time.sleep(1)
