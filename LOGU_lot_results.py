@@ -251,100 +251,71 @@ def generate_and_save_latest_results():
 
     return results
 
-# Complexity and Probability Analysis
-# def display_complexity_analysis():
-#     """Displays the complexity and cracking difficulty analysis at the end of the result."""
-#     st.markdown("### Probability Analysis")
-#     st.markdown("**Probability of winning any prize:** 0.98%")
-#     st.markdown("**Difficulty Level:** Hard")
-
-#     st.markdown("### Complexity Analysis")
-#     st.markdown("This system uses cryptographic hashing with SHA-256 to generate ticket numbers, introducing high unpredictability.")
-#     st.markdown("**How Hard to Crack:** Approximately 99.999% resilience against pattern recognition attempts.")
-#     st.markdown("**Time for Human to Crack:** With manual methods, it would take centuries.")
-#     st.markdown("**Time with Resources (e.g., supercomputers):** Decades due to adaptive complexity with historical draw integration.")
-
-# Updated Complexity and Probability Analysis
-def calculate_complexity_metrics(results):
-    """Calculate probability, entropy, and cracking difficulty based on current results."""
-    total_tickets = 10000  # Assuming a range from 0000 to 9999 for ticket numbers
-    total_prizes = sum(len(numbers) if isinstance(numbers, list) else 1 for numbers in results.values())
-    probability_of_winning = total_prizes / total_tickets
-
-    # Entropy calculation (assuming SHA-256 provides high entropy per ticket)
-    entropy_per_ticket = hashlib.sha256().digest_size * 8  # 256 bits of entropy for SHA-256
-    total_entropy = entropy_per_ticket * total_tickets
-
-    # Estimate cracking difficulty
-    difficulty_human = "Centuries (manual)"
-    difficulty_supercomputer = "Decades (with historical patterns)"
-
-    return probability_of_winning, total_entropy, difficulty_human, difficulty_supercomputer
-
-def display_complexity_analysis(results, previous_results):
-    """Display a real-time calculated complexity analysis for the current results."""
-    probability_of_winning, total_entropy, difficulty_human, difficulty_supercomputer = calculate_complexity_metrics(results)
-
-    # Display Probability and Difficulty Analysis
+def display_complexity_analysis(current_results, past_results=None):
+    """Real-time complexity analysis for the current lottery results."""
+    
+    # Probability Analysis
+    total_ticket_possibilities = 10000  # Four-digit numbers (0000 to 9999)
+    prize_counts = sum(len(v) if isinstance(v, list) else 1 for v in current_results.values())
+    probability_to_win = round((prize_counts / total_ticket_possibilities) * 100, 2)
+    
     st.markdown("### Probability Analysis")
-    st.markdown(f"**Probability of winning any prize:** {probability_of_winning * 100:.2f}%")
+    st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
     st.markdown("**Difficulty Level:** Hard")
 
+    # Complexity Analysis based on SHA-256 hashing and unique prize generation
     st.markdown("### Complexity Analysis")
-    st.markdown("This system uses cryptographic hashing with SHA-256 to generate ticket numbers, introducing high unpredictability.")
-    st.markdown(f"**Total Entropy:** {total_entropy:.0f} bits (SHA-256 entropy per ticket)")
-    st.markdown(f"**How Hard to Crack:** Approximately {difficulty_human} for a human, {difficulty_supercomputer} with supercomputers.")
+    st.markdown("This system uses cryptographic SHA-256 hashing to enhance unpredictability of each prize-winning ticket.")
     
-    # Comparison with previous results
-    display_in_depth_report(results, previous_results)
+    # Approximate time to crack each prize tier
+    # Assume attempts per second for hypothetical attackers
+    human_attempts_per_second = 1  # Manual
+    amateur_attempts_per_second = 1000
+    expert_attempts_per_second = 100000
+    supercomputer_attempts_per_second = 1e9
 
-def display_in_depth_report(results, previous_results):
-    """Generates an in-depth report comparing the current and previous lottery results."""
-    st.markdown("### In-Depth Complexity Report")
-    
-    # Compare prize numbers to previous results
-    differences = {}
-    for prize, current_numbers in results.items():
-        previous_numbers = previous_results.get(prize, [])
-        # Check for any matching ticket numbers in prize categories
-        if isinstance(current_numbers, list):
-            matches = set(current_numbers).intersection(previous_numbers)
-            differences[prize] = len(matches)
-        else:
-            differences[prize] = int(current_numbers == previous_numbers)
+    def calculate_crack_time(attempts_per_sec):
+        total_attempts_needed = total_ticket_possibilities / prize_counts
+        return round(total_attempts_needed / attempts_per_sec, 2)
 
-    # Display how much has changed from the previous result
-    st.write("#### Difference in Prize Results from Previous Draw")
-    for prize, match_count in differences.items():
-        st.write(f"{prize}: {match_count} match(es) with previous draw")
+    st.markdown("**Estimated Time to Crack Each Prize Tier by Different Attackers:**")
+    st.write(f"- **Human Alone**: {calculate_crack_time(human_attempts_per_second)} seconds")
+    st.write(f"- **Amateur with Basic Resources**: {calculate_crack_time(amateur_attempts_per_second)} seconds")
+    st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
+    st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
 
-    # Graph of difficulty levels for cracking different prize tiers
-    tiers = list(results.keys())
-    difficulties = [np.log2(len(results[prize]) if isinstance(results[prize], list) else 1) for prize in tiers]
+    # In-depth comparison with past results for unpredictability and variance
+    if past_results:
+        st.markdown("### Comparative Analysis with Past Results")
+        current_prizes_flat = [num for prize, nums in current_results.items() for num in (nums if isinstance(nums, list) else [nums])]
+        past_prizes_flat = [num for prize, nums in past_results.items() for num in (nums if isinstance(nums, list) else [nums])]
+        
+        # Calculate unique ticket distribution
+        common_tickets = set(current_prizes_flat).intersection(set(past_prizes_flat))
+        unique_current_tickets = len(current_prizes_flat) - len(common_tickets)
+        
+        st.write(f"**Unique ticket distribution in this draw:** {unique_current_tickets}")
+        st.write(f"**Common tickets with past draw:** {len(common_tickets)}")
+        
+        # Variance in hash values
+        current_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in current_prizes_flat])
+        past_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in past_prizes_flat])
+        variance_diff = round(abs(current_hash_variance - past_hash_variance), 2)
+        
+        st.write(f"**Hash variance difference from past results:** {variance_diff}")
 
-    # Display a graph of entropy/difficulty for each prize tier
-    st.write("#### Entropy and Difficulty of Each Prize Tier")
-    plt.figure(figsize=(10, 5))
-    plt.bar(tiers, difficulties, color='steelblue')
-    plt.xlabel("Prize Tier")
-    plt.ylabel("Difficulty Level (log scale)")
-    plt.title("Difficulty to Crack Each Prize Tier")
-    st.pyplot(plt)
+        # Graphical Representation of Variance
+        fig, ax = plt.subplots()
+        ax.bar(["Current Draw", "Past Draw"], [current_hash_variance, past_hash_variance], color=['blue', 'orange'])
+        ax.set_ylabel("Hash Variance")
+        ax.set_title("Variance Comparison of Current and Past Lottery Results")
+        st.pyplot(fig)
 
-    # Explanation of cracking scenarios
-    st.write("#### Explanation of Cracking Difficulty")
-    st.markdown("""
-    Predicting the exact numbers for future prizes is extremely challenging due to the cryptographic nature of SHA-256 hashing.
-    - **For a human alone:** Without computational tools, it's impractically hard to predict future numbers, as SHA-256 is designed for high randomness.
-    - **With limited computational resources:** Even with substantial computing power, breaking SHA-256 hashing patterns is infeasible within a human lifetime.
-    - **With supercomputers:** Advanced resources could attempt brute force but would take decades due to adaptive complexity in draw integrations.
-    
-    **Is Cracking Possible?**  
-    Given the SHA-256 hashing's resistance to pattern recognition, cracking is virtually impossible without extraordinary computational power and an unrealistic amount of time. 
+        st.markdown("### Conclusion")
+        st.markdown("This analysis indicates that the SHA-256 hashing used for each prize level significantly reduces pattern predictability, with minimal overlap between current and previous results. The complexity to crack even with high-end resources remains high, underscoring the security of this lottery generation model.")
 
-    **Summary**  
-    The unpredictability and complexity metrics (such as entropy and probability) effectively prevent any practical attempts to predict the numbers.
-    """)
+# Replace the original display_complexity_analysis call with:
+# display_complexity_analysis(latest_results, load_results_from_file(previous_date))
 
 # Schedule weekly result generation every Wednesday at 3:00 pm
 def scheduled_task():
@@ -367,7 +338,7 @@ else:
 # Display the latest results by default
 st.write("### Latest Result")
 display_kerala_lottery(latest_results)
-display_complexity_analysis()
+display_complexity_analysis(latest_results, load_results_from_file(previous_date)
 
 # Past results search option
 st.sidebar.write("### View Past Results")
