@@ -296,12 +296,19 @@ def generate_and_save_latest_results():
 #     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second)} seconds")
 #     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second)} seconds")
 
+# Add or replace inside `display_complexity_analysis`
 def calculate_crack_time(attempts_per_sec, prize_counts, total_ticket_possibilities):
     total_attempts_needed = total_ticket_possibilities / prize_counts
     time_to_crack = total_attempts_needed / attempts_per_sec
     if time_to_crack < 1:
         return "Less than 1 second"
     return round(time_to_crack, 2)
+
+# Inside `display_complexity_analysis` function
+st.markdown("### Probability Analysis")
+st.markdown(f"**Probability of winning any prize in this draw:** {probability_to_win}%")
+st.markdown("**Difficulty Level:** Hard")
+
     
 def display_complexity_analysis(current_results, past_results=None):
     total_ticket_possibilities = 10000
@@ -323,8 +330,44 @@ def display_complexity_analysis(current_results, past_results=None):
     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second, prize_counts, total_ticket_possibilities)}")
     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second, prize_counts, total_ticket_possibilities)}")
     
-        # In the display function:
+                           # Add or replace inside the `display_complexity_analysis` function
+    def plot_prize_distribution(results):
+       prize_names = list(results.keys())
+       prize_counts = [len(prizes) if isinstance(prizes, list) else 1 for prizes in results.values()]
+
+       fig, ax = plt.subplots()
+       ax.bar(prize_names, prize_counts, color='skyblue')
+       ax.set_xlabel('Prize Tiers')
+       ax.set_ylabel('Number of Prizes')
+       ax.set_title('Prize Distribution in the Latest Draw')
+       st.pyplot(fig)
+
+    # Call `plot_prize_distribution` after you calculate complexity
     plot_prize_distribution(current_results)
+
+    # Add this inside `display_complexity_analysis`
+    current_prizes_flat = [num for prize, nums in current_results.items() for num in (nums if isinstance(nums, list) else [nums])]
+    past_prizes_flat = [num for prize, nums in past_results.items() for num in (nums if isinstance(nums, list) else [nums])]
+
+    common_tickets = set(current_prizes_flat).intersection(set(past_prizes_flat))
+    unique_current_tickets = len(current_prizes_flat) - len(common_tickets)
+
+    st.write(f"**Unique ticket distribution in this draw:** {unique_current_tickets}")
+    st.write(f"**Common tickets with past draw:** {len(common_tickets)}")
+
+    # Calculate variance in hashes for current and past draws
+    current_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in current_prizes_flat])
+    past_hash_variance = np.var([int(hashlib.sha256(num.encode()).hexdigest(), 16) for num in past_prizes_flat])
+    variance_diff = round(abs(current_hash_variance - past_hash_variance), 2)
+
+    st.write(f"**Hash variance difference from past results:** {variance_diff}")
+
+    # Plot variance comparison graph
+    fig, ax = plt.subplots()
+    ax.bar(["Current Draw", "Past Draw"], [current_hash_variance, past_hash_variance], color=['blue', 'orange'])
+    ax.set_ylabel("Hash Variance")
+    ax.set_title("Variance Comparison of Current and Past Lottery Results")
+    st.pyplot(fig)
 
     
     if past_results:
