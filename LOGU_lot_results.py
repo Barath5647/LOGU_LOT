@@ -154,7 +154,7 @@
 
 
 import streamlit as st
-import random
+import secrets
 import hashlib
 import json
 from datetime import datetime, timedelta
@@ -165,14 +165,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def generate_ticket_number():
-    """Generates a unique, randomized, four-digit ticket number."""
-    number = random.randint(0, 9999)
-    return f"{number:04d}"
+    return f"{secrets.randbelow(10000):04d}"
 
-def hash_ticket_number(ticket_number):
-    """Hashes ticket number for cryptographic unpredictability."""
-    hashed = hashlib.sha256(ticket_number.encode()).hexdigest().upper()[:6]
+def hash_ticket_number(ticket_number, salt=None):
+    salt = salt or datetime.now().strftime('%Y%m%d%H%M')
+    hashed = hashlib.sha256((ticket_number + salt).encode()).hexdigest().upper()[:6]
     return hashed
+
 
 def generate_prize_list(count):
     """Generates and sorts a list of unique four-digit ticket numbers for a prize tier."""
