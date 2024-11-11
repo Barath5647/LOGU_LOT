@@ -46,7 +46,7 @@ def load_results_from_file(date=None):
         all_results = json.load(file)
     return all_results if date is None else all_results.get(date, {})
 
-def display_kerala_lottery():
+def display_kerala_lottery(results):
     """Displays the Kerala Fifty-Fifty Lottery Result in a specified format with spaced tables."""
 
     # Header Information
@@ -60,24 +60,24 @@ def display_kerala_lottery():
 
     st.markdown("---")
 
-    # Generate Results
+    # Display Results
+    for prize, numbers in results.items():
+        if isinstance(numbers, list):
+            st.markdown(f"**{prize}**")
+            st.markdown(" | ".join(numbers))
+        else:
+            st.markdown(f"**{prize}**: {numbers}")
+        st.markdown("---")
+
+def generate_and_save_latest_results():
+    """Generates a new batch of lottery results and saves them to the file."""
     results = {}
 
     # First Prize
-    st.markdown("**1st Prize: ₹1,00,00,000**")
-    first_prize = hash_ticket_number(generate_ticket_number())
-    st.markdown(f"Ticket No: {first_prize}")
-    results["1st Prize"] = first_prize
-
-    st.markdown("---")
+    results["1st Prize: ₹1,00,00,000"] = hash_ticket_number(generate_ticket_number())
 
     # Consolation Prizes
-    st.markdown("**Consolation Prizes: ₹8,000 each**")
-    consolation_prizes = [hash_ticket_number(generate_ticket_number()) for _ in range(10)]
-    st.markdown(" | ".join(consolation_prizes))
-    results["Consolation Prizes"] = consolation_prizes
-
-    st.markdown("---")
+    results["Consolation Prizes: ₹8,000 each"] = [hash_ticket_number(generate_ticket_number()) for _ in range(10)]
 
     # Lower Prizes with four-digit format
     prize_structure = {
@@ -90,40 +90,45 @@ def display_kerala_lottery():
     }
 
     for prize_name, count in prize_structure.items():
-        st.markdown(f"**{prize_name}**")
-        prize_numbers = generate_prize_list(count)
-        st.markdown(" | ".join(prize_numbers))
-        results[prize_name] = prize_numbers
-        st.markdown("---")
+        results[prize_name] = generate_prize_list(count)
 
     # Save the current results with the current date and time
-    save_results_to_file(results, datetime.now().strftime('%d-%m-%Y %H:%M'))
+    current_date = datetime.now().strftime('%d-%m-%Y %H:%M')
+    save_results_to_file(results, current_date)
+
+    return results
 
 # Schedule weekly result generation every Wednesday at 3:00 pm
 def scheduled_task():
-    display_kerala_lottery()
+    generate_and_save_latest_results()
 
 schedule.every().wednesday.at("15:00").do(scheduled_task)
 
-# Streamlit app execution with buttons
+# Streamlit app execution with sidebar options
 st.title("Kerala Fifty-Fifty Lottery Result Generator")
 
-if st.button("Refresh Results"):
-    display_kerala_lottery()
+# Sidebar options for refreshing and viewing past results
+st.sidebar.write("### Options")
+if st.sidebar.button("Refresh Results"):
+    latest_results = generate_and_save_latest_results()
+else:
+    # Load the latest available results if not refreshed
+    all_results = load_results_from_file()
+    latest_results = all_results[max(all_results.keys())] if all_results else generate_and_save_latest_results()
 
-st.write("### View Past Results")
-selected_date = st.text_input("Enter the date (dd-mm-yyyy HH:MM) to view past results:")
+# Display the latest results by default
+st.write("### Latest Result")
+display_kerala_lottery(latest_results)
+
+# Past results search option
+st.sidebar.write("### View Past Results")
+selected_date = st.sidebar.text_input("Enter the date (dd-mm-yyyy HH:MM) to view past results:")
 
 if selected_date:
     past_results = load_results_from_file(selected_date)
     if past_results:
         st.write(f"### Results for {selected_date}")
-        for prize, numbers in past_results.items():
-            if isinstance(numbers, list):
-                st.markdown(f"**{prize}**")
-                st.markdown(" | ".join(numbers))
-            else:
-                st.markdown(f"**{prize}**: {numbers}")
+        display_kerala_lottery(past_results)
     else:
         st.write("No results found for the specified date.")
 
