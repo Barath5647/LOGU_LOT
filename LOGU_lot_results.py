@@ -64,10 +64,25 @@ def display_kerala_lottery(results):
     for prize, numbers in results.items():
         if isinstance(numbers, list):
             st.markdown(f"**{prize}**")
-            st.markdown(" | ".join(numbers))
+            st.markdown(" ".join(numbers))  # Display numbers with spaces
         else:
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
+
+    # Display difficulty of winning
+    total_tickets = 10000  # Assume total possible tickets
+    total_prizes = sum(len(prizes) if isinstance(prizes, list) else 1 for prizes in results.values())
+    probability = total_prizes / total_tickets * 100
+    difficulty_description = (
+        "Very Easy" if probability > 10 else
+        "Moderate" if probability > 1 else
+        "Hard" if probability > 0.1 else
+        "Very Hard"
+    )
+
+    st.write("### Probability Analysis")
+    st.write(f"Probability of winning any prize: {probability:.2f}%")
+    st.write(f"Difficulty Level: {difficulty_description}")
 
 def generate_and_save_latest_results():
     """Generates a new batch of lottery results and saves them to the file."""
@@ -82,11 +97,11 @@ def generate_and_save_latest_results():
     # Lower Prizes with four-digit format
     prize_structure = {
         "2nd Prize: ₹1,00,000 each": 12,
-        "3rd Prize: ₹5000 each": 20,
+        "3rd Prize: ₹5000 each": 25,
         "4th Prize: ₹2000 each": 18,
-        "5th Prize: ₹1000 each": 15,
-        "6th Prize: ₹500 each": 12,
-        "7th Prize: ₹100 each": 10
+        "5th Prize: ₹1000 each": 25,
+        "6th Prize: ₹500 each": 30,
+        "7th Prize: ₹100 each": 100
     }
 
     for prize_name, count in prize_structure.items():
