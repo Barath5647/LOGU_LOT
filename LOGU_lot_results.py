@@ -64,7 +64,7 @@ def display_kerala_lottery(results):
     for prize, numbers in results.items():
         if isinstance(numbers, list):
             st.markdown(f"**{prize}**")
-            st.markdown(" | ".join(numbers))
+            # st.markdown(" | ".join(numbers))
         else:
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
@@ -82,11 +82,11 @@ def generate_and_save_latest_results():
     # Lower Prizes with four-digit format
     prize_structure = {
         "2nd Prize: ₹1,00,000 each": 12,
-        "3rd Prize: ₹5000 each": 20,
+        "3rd Prize: ₹5000 each": 25,
         "4th Prize: ₹2000 each": 18,
-        "5th Prize: ₹1000 each": 15,
-        "6th Prize: ₹500 each": 12,
-        "7th Prize: ₹100 each": 10
+        "5th Prize: ₹1000 each": 25,
+        "6th Prize: ₹500 each": 30,
+        "7th Prize: ₹100 each": 100
     }
 
     for prize_name, count in prize_structure.items():
