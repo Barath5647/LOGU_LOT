@@ -237,8 +237,6 @@ def display_kerala_lottery(results):
             st.markdown(f"**{prize}**: {numbers}")
         st.markdown("---")
 
-    # In the display function:
-    plot_prize_distribution(current_results)
 
 def generate_and_save_latest_results():
     """Generates a new batch of lottery results and saves them to the file."""
@@ -322,6 +320,10 @@ def display_complexity_analysis(current_results, past_results=None):
     st.write(f"- **Expert with High-End Resources**: {calculate_crack_time(expert_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
     st.write(f"- **Supercomputer**: {calculate_crack_time(supercomputer_attempts_per_second, prize_counts, total_ticket_possibilities)} seconds")
 
+        # In the display function:
+    plot_prize_distribution(current_results)
+
+    
     if past_results:
         st.markdown("### Comparative Analysis with Past Results")
         current_prizes_flat = [num for prize, nums in current_results.items() for num in (nums if isinstance(nums, list) else [nums])]
