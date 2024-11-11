@@ -124,13 +124,23 @@ display_kerala_lottery(latest_results)
 st.sidebar.write("### View Past Results")
 selected_date = st.sidebar.text_input("Enter the date (dd-mm-yyyy HH:MM) to view past results:")
 
-if selected_date:
-    past_results = load_results_from_file(selected_date)
-    if past_results:
-        st.write(f"### Results for {selected_date}")
-        display_kerala_lottery(past_results)
-    else:
-        st.write("No results found for the specified date.")
+# Dropdown menu for past results selection
+all_results = load_results_from_file()
+if all_results:
+    date_options = sorted(all_results.keys(), reverse=True)
+    selected_date_dropdown = st.sidebar.selectbox("Or select from available dates:", date_options)
+
+    # If user selects a date from the dropdown or enters a date manually
+    if selected_date or selected_date_dropdown:
+        date_to_show = selected_date if selected_date else selected_date_dropdown
+        past_results = load_results_from_file(date_to_show)
+        if past_results:
+            st.write(f"### Results for {date_to_show}")
+            display_kerala_lottery(past_results)
+        else:
+            st.write("No results found for the specified date.")
+else:
+    st.sidebar.write("No past results available.")
 
 # Running scheduled tasks continuously in the background
 while True:
