@@ -196,7 +196,7 @@ if past_results:
     st.write(f"### Results for {selected_date_input or selected_date_from_menu}")
     display_kerala_lottery(past_results)
 
-display_complexity_analysis(1000000, '7th')  # Example of passing correct parameters to the analysis
+display_complexity_analysis(1000000, '3rd')  # Example of passing correct parameters to the analysis
 
 # Run the scheduled task in a separate thread to avoid blocking Streamlit app
 task_thread = threading.Thread(target=run_scheduled_tasks, daemon=True)
