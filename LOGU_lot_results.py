@@ -150,20 +150,20 @@ def display_complexity_analysis(total_tickets: int, prize_category: str):
     
     # Display the probability and explain it
     st.write(f"Probability of winning: {probability * 100:.6f}%")
-    st.write(
-        f"The probability of winning is calculated by dividing the number of winning tickets for the selected prize "
-        f"category ({winning_tickets_per_draw} winning tickets) by the total number of tickets ({total_tickets} total tickets). "
-        f"This gives the chance of a single ticket winning the prize in one draw."
-    )
+    # st.write(
+    #     f"The probability of winning is calculated by dividing the number of winning tickets for the selected prize "
+    #     f"category ({winning_tickets_per_draw} winning tickets) by the total number of tickets ({total_tickets} total tickets). "
+    #     f"This gives the chance of a single ticket winning the prize in one draw."
+    # )
 
     # Calculate crack time
     crack_time_weeks = calculate_crack_time(total_tickets, winning_tickets_per_draw)
     st.write(f"Estimated Crack Time: {crack_time_weeks:.2f} weeks")
-    st.write(
-        f"The crack time is an estimation of how many weeks it would take for a single ticket to win the prize, "
-        f"based on the number of winning tickets per draw ({winning_tickets_per_draw}) and the number of total tickets sold ({total_tickets}). "
-        f"This assumes that there is one draw per week and that the same number of tickets are available every week."
-    )
+    # st.write(
+    #     f"The crack time is an estimation of how many weeks it would take for a single ticket to win the prize, "
+    #     f"based on the number of winning tickets per draw ({winning_tickets_per_draw}) and the number of total tickets sold ({total_tickets}). "
+    #     f"This assumes that there is one draw per week and that the same number of tickets are available every week."
+    # )
 
 def scheduled_task():
     generate_and_save_latest_results()
