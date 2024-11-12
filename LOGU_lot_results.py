@@ -73,12 +73,12 @@ def generate_and_save_latest_results():
     results["Consolation Prizes: ₹8,000 each"] = [hash_ticket_number(generate_ticket_number()) for _ in range(10)]
 
     prize_structure = {
-        "2nd Prize: ₹1,00,000 each": 12,
-        "3rd Prize: ₹5000 each": 25,
-        "4th Prize: ₹2000 each": 18,
-        "5th Prize: ₹1000 each": 25,
-        "6th Prize: ₹500 each": 30,
-        "7th Prize: ₹100 each": 100
+        "Prize: ₹1,00,000 each": 12,
+        "Prize: ₹5000 each": 25,
+        "Prize: ₹2000 each": 18,
+        "Prize: ₹1000 each": 25,
+        "Prize: ₹500 each": 30,
+        "Prize: ₹100 each": 100
     }
 
     for prize_name, count in prize_structure.items():
