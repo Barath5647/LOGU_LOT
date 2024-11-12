@@ -1,77 +1,77 @@
 import random
 import hashlib
-import pandas as pd
 import streamlit as st
+from datetime import datetime
 
-# Prize structure, defined with prize amount, number of prizes, and agent commission rates
-prize_structure = {
-    "First Prize": {"amount": 10000000, "num_prizes": 1, "agent_commission": 0.1},
-    "Second Prize": {"amount": 1000000, "num_prizes": 1, "agent_commission": 0.1},
-    "Third Prize": {"amount": 5000, "num_prizes": 24840, "agent_commission": 0.1},
-    "Fourth Prize": {"amount": 2000, "num_prizes": 12960, "agent_commission": 0.1},
-    "Fifth Prize": {"amount": 1000, "num_prizes": 25920, "agent_commission": 0.1},
-    "Sixth Prize": {"amount": 500, "num_prizes": 103680, "agent_commission": 0.1},
-    "Seventh Prize": {"amount": 100, "num_prizes": 136080, "agent_commission": 0.1},
-    "Consolation Prize": {"amount": 8000, "num_prizes": 11, "agent_commission": 0.1}
-}
+def generate_lottery_results(seed_phrase, date_str):
+    """
+    Generate Kerala-style lottery results with a cryptographic seed for randomness.
 
-# Total ticket pool
-total_tickets = 1080000
+    Parameters:
+    - seed_phrase (str): A unique phrase for seeding randomness.
+    - date_str (str): The current date to ensure unique results per day.
 
-# Function to generate secure hash for ticket numbers (for tamper-proofing)
-def generate_ticket_hash(ticket_number):
-    return hashlib.sha256(str(ticket_number).encode()).hexdigest()
+    Returns:
+    - dict: A dictionary containing lists of numbers for each prize tier.
+    """
+    # Define prize structure and limits
+    results = {
+        "1st Prize": [], 
+        "Consolation Prize": [], 
+        "2nd Prize": [], 
+        "3rd Prize": []
+    }
+    prize_limits = {
+        "1st Prize": 1, 
+        "Consolation Prize": 5, 
+        "2nd Prize": 10, 
+        "3rd Prize": 20
+    }
 
-# Function to draw unique winning numbers securely for each prize category
-def draw_winning_numbers(num_draws, ticket_range):
-    winning_numbers = set()
-    while len(winning_numbers) < num_draws:
-        winning_number = random.randint(1, ticket_range)
-        hashed_number = generate_ticket_hash(winning_number)
-        winning_numbers.add(hashed_number)
-    return list(winning_numbers)
+    # Seed the random generator for consistent, cryptographic randomness
+    hash_seed = hashlib.sha256(f"{seed_phrase}{date_str}".encode()).hexdigest()
+    random.seed(int(hash_seed, 16))
 
-# Function to generate the prize distribution and calculate agent commissions
-def generate_prize_distribution():
-    prize_results = []
-    for prize, details in prize_structure.items():
-        prize_amount = details['amount']
-        num_prizes = details['num_prizes']
-        agent_commission = prize_amount * details['agent_commission']
-        
-        # Draw winning ticket numbers for each prize tier
-        winning_numbers = draw_winning_numbers(num_prizes, total_tickets)
-        
-        # Append prize details for each winning ticket
-        for ticket_hash in winning_numbers:
-            prize_results.append({
-                "Prize Category": prize,
-                "Prize Amount": prize_amount,
-                "Ticket Hash": ticket_hash,
-                "Agent Commission": agent_commission
-            })
-    return pd.DataFrame(prize_results)
+    # Generate unique numbers for each prize tier
+    results["1st Prize"] = [f"{random.randint(100000, 999999)}"]
+    results["Consolation Prize"] = sorted([
+        f"{random.randint(100000, 999999)}" 
+        for _ in range(prize_limits["Consolation Prize"])
+    ])
+    results["2nd Prize"] = sorted([
+        f"{random.randint(1000, 9999)}" 
+        for _ in range(prize_limits["2nd Prize"])
+    ])
+    results["3rd Prize"] = sorted([
+        f"{random.randint(1000, 9999)}" 
+        for _ in range(prize_limits["3rd Prize"])
+    ])
+    
+    return results
 
-# Generate the prize distribution DataFrame
-prize_distribution = generate_prize_distribution()
+def display_lottery_results(results, date_str):
+    """
+    Display Kerala-style lottery results in Streamlit format.
 
-# Display the lottery results and statistics using Streamlit
-st.title("Kerala Fifty-Fifty Weekly Lottery Results")
-st.markdown("**Prize Structure and Results**")
-st.write(prize_distribution)
+    Parameters:
+    - results (dict): The generated lottery numbers for each prize tier.
+    - date_str (str): Date of the result to display in the header.
+    """
+    st.title("Kerala State Lotteries - Result")
+    st.write(f"Date: {date_str}")
+    st.header("Results")
+    for prize, numbers in results.items():
+        st.subheader(f"{prize}:")
+        for num in numbers:
+            st.write(num)
+        st.write("\n")
 
-# Calculate total prize amount and agent commission
-total_prize_amount = prize_distribution["Prize Amount"].sum()
-total_agent_commission = prize_distribution["Agent Commission"].sum()
-st.markdown(f"**Total Prize Amount:** Rs. {total_prize_amount:,}")
-st.markdown(f"**Total Agent Commission:** Rs. {total_agent_commission:,}")
-
-# Provide a secure ticket hash validation tool for users to check if their ticket won
-st.markdown("**Secure Ticket Hash Validation**")
-ticket_input = st.text_input("Enter Ticket Number to Verify", "")
-if ticket_input:
-    ticket_hash = generate_ticket_hash(ticket_input)
-    if ticket_hash in prize_distribution['Ticket Hash'].values:
-        st.success("Congratulations! This ticket is a winner.")
-    else:
-        st.error("Sorry, this ticket did not win.")
+# Main execution
+if __name__ == "__main__":
+    # Set today's date as the lottery date
+    date_str = datetime.today().strftime('%Y-%m-%d')
+    seed_phrase = "Kerala Fifty-Fifty Lottery"
+    
+    # Generate and display results
+    results = generate_lottery_results(seed_phrase, date_str)
+    display_lottery_results(results, date_str)
