@@ -109,21 +109,49 @@ def calculate_probability(ticket_number: int, total_tickets: int, prize_category
     return probability
 
 def calculate_crack_time(total_tickets: int, winning_tickets_per_draw: int, draws_per_week: int = 1) -> float:
+    """
+    Estimate how long it would take to win based on draw frequency.
+    :param total_tickets: Total number of tickets in the lottery
+    :param winning_tickets_per_draw: Number of winning tickets per draw
+    :param draws_per_week: Number of draws per week
+    :return: The estimated crack time in weeks
+    """
     tickets_per_week = winning_tickets_per_draw * draws_per_week
     crack_time_weeks = total_tickets / tickets_per_week
     return crack_time_weeks
 
 def display_complexity_analysis(total_tickets: int, prize_category: str):
-    valid_prize_categories = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', 'consolation']
+    """
+    Display a complexity analysis based on the prize category.
+    :param total_tickets: The total number of tickets sold
+    :param prize_category: The prize category (e.g., '1st', '2nd', etc.)
+    """
+    # Define valid prize categories and their winning ticket counts
+    prize_distribution = {
+        '1st': 1,
+        '2nd': 1,
+        '3rd': 24840,
+        '4th': 12360,
+        '5th': 25920,
+        '6th': 103680,
+        '7th': 136080,
+        'consolation': 88
+    }
     
-    if prize_category not in valid_prize_categories:
+    if prize_category not in prize_distribution:
         raise ValueError(f"Invalid prize category: {prize_category}")
 
-    probability = calculate_probability(0, total_tickets, prize_category)
-    print(f"Complexity Analysis for {prize_category} Prize:")
-    print(f"Probability of winning: {probability * 100:.6f}%")
-    crack_time_weeks = calculate_crack_time(total_tickets, prize_category)
-    print(f"Estimated Crack Time: {crack_time_weeks:.2f} weeks")
+    # Get the number of winning tickets for the selected prize category
+    winning_tickets_per_draw = prize_distribution[prize_category]
+
+    # Calculate probability
+    probability = calculate_probability(0, total_tickets, prize_category)  # ticket_number is not needed for probability
+    st.write(f"**Complexity Analysis for {prize_category} Prize:**")
+    st.write(f"Probability of winning: {probability * 100:.6f}%")
+
+    # Calculate crack time using the number of winning tickets for that prize category
+    crack_time_weeks = calculate_crack_time(total_tickets, winning_tickets_per_draw)
+    st.write(f"Estimated Crack Time: {crack_time_weeks:.2f} weeks")
 
 def scheduled_task():
     generate_and_save_latest_results()
