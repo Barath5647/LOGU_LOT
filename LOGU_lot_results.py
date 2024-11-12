@@ -159,6 +159,12 @@ def display_complexity_analysis(total_tickets: int, prize_category: str):
     :param total_tickets: The total number of tickets sold
     :param prize_category: The prize category (e.g., '1st', '2nd', etc.)
     """
+    # Define valid prize categories
+    valid_prize_categories = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', 'consolation']
+    
+    if prize_category not in valid_prize_categories:
+        raise ValueError(f"Invalid prize category: {prize_category}")
+
     probability = calculate_probability(0, total_tickets, prize_category)  # ticket_number is not needed for probability
     print(f"Complexity Analysis for {prize_category} Prize:")
     print(f"Probability of winning: {probability * 100:.6f}%")
